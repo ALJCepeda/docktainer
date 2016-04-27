@@ -1,0 +1,23 @@
+{
+  "name": "docktainer",
+  "version": "0.0.0",
+  "description": "Docker container management",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ALJCepeda/docktainer.git"
+  },
+  "keywords": [
+    "docker",
+    "container",
+    "management"
+  ],
+  "author": "ALJCepeda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ALJCepeda/docktainer/issues"
+  }
+}
