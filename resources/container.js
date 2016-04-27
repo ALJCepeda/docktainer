@@ -1,4 +1,4 @@
-var Temper = require("./resources/dockercmd");
+var Command = require("./commands");
 
 /*
 	args - DockerArguments - Startup info for docker container
@@ -8,15 +8,15 @@ var Docktainer = function(args) {
 	this.pid = 0;
 	this.args = args;
 	this.command = "";
-}
+};
 
 Docktainer.prototype.run = function(image, cmd, version, repository) {
 	if(this.isRunning() === true) {
-		this.log("Container ("+this.name+") is already running");
 		return false;
 	} else {
-		
-
+		var commander = new Command();
+		var runCMD = commander.generate("run", this.args);
+		console.log(runCMD);
 	}
 };
 
@@ -30,3 +30,5 @@ Docktainer.prototype.isRunning = function() {
 		return true;
 	}
 };
+
+Dock
