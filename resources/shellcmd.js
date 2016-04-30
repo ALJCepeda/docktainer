@@ -31,11 +31,8 @@ ShellCMD.prototype.generate = function() {
 	if(this.useSudo === true) { result.push("sudo"); }
 
 	result.push(command);
-
 	if( options !== "" ) { result.push(options); }
-
-	result.push(action);
-
+	if( action !== "" ) { result.push(action); }
 	if( params !== "" ) { result.push(params); }
 
 
