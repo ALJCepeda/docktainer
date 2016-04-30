@@ -19,5 +19,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ALJCepeda/docktainer/issues"
+  },
+  "dependencies": {
+    "promise": "~7.1.1"
   }
 }
