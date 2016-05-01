@@ -1,7 +1,7 @@
 var Promise = require("promise");
 var cp = require("child_process");
 
-var ShellCMD = require("./shellcmd");
+var CMD = require("./CMD");
 var Base = require("./../libs/barejs/index");
 var b = new Base();
 /*
@@ -28,7 +28,7 @@ Docktainer.prototype.generate = function() {
 	var tag = this.tag;	
 
 	var action = b.supplant("run {0}:{1}", [ image, tag ]);
-	var commander = new ShellCMD("docker", action, options, inner);
+	var commander = new CMD("docker", action, options, inner);
 
 	var result = commander.generate();
 	return result;
@@ -39,7 +39,7 @@ Docktainer.prototype.run = function(expose) {
 		return false;
 	} else {
 		var cmd = this._cmd = this.generate();
-
+		console.log(cmd);
 		return this.exec(cmd, expose);
 	}
 };

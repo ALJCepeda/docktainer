@@ -1,16 +1,16 @@
 var assert = require("assert");
-var ShellCMD = require("./../resources/shellcmd");
+var CMD = require("./../resources/cmd");
 
 describe("Command", function() {
-	describe("unpack", function() {
+	xdescribe("unpack", function() {
 		it("empty args", function() {
-			var command = new ShellCMD();
+			var command = new CMD();
 			var result = command.unpack({});
 			assert(result === "");
 		});
 
 		it("few args", function() {
-			var command = new ShellCMD();
+			var command = new CMD();
 			var result = command.unpack({
 				"kernel-memory":"5M",
 				"rm":true,
@@ -21,7 +21,7 @@ describe("Command", function() {
 		});
 
 		it("nested args", function() {
-			var command = new ShellCMD();
+			var command = new CMD();
 			var result = command.unpack({
 				"id":"Moo",
 				"volumes":[
@@ -36,22 +36,23 @@ describe("Command", function() {
 
 	describe("generate", function() {
 		it("no args", function() {
-			var inner = new ShellCMD("php", "index.php");
-			var cmd = new ShellCMD("docker", "run debian", { sudo:true }, inner);
+			var php = new CMD("php", "index.php");
+			var debian = new CMD("ajrelic/debian", php);
+			var cmd = new CMD("docker", {}, "run", debian, true);
 			
 			var result = cmd.generate();
-			assert.equal(result, "sudo docker run debian php index.php");
+			assert.equal(result, "sudo docker run ajrelic/debian php index.php");
 		});
 
 		it("few args", function() {
-			var inner = new ShellCMD("nodejs", "app.js");
-			var cmd = new ShellCMD("docker", "run ubuntu", {
-				sudo:true,
+			var node = new CMD("nodejs", "app.js");
+			var ubuntu = new CMD("ubuntu", node);
+			var cmd = new CMD("docker", {
 				"kernel-memory":"5M",
 				rm:true,
 				id:"Test Container"
-			}, inner);
-
+			}, "run", ubuntu, true);
+			
 			var result = cmd.generate();
 			assert.equal(result, "sudo docker --kernel-memory=\"5M\" --rm --id=\"Test Container\" run ubuntu nodejs app.js");
 		});

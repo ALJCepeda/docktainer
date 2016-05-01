@@ -3,7 +3,7 @@ var Container = require("./../resources/container");
 var ShellCMD = require("./../resources/shellcmd");
 
 describe("Container", function() {
-	describe("exec", function() {
+	xdescribe("exec", function() {
 		it("uname", function(done) {
 			var inner = new ShellCMD("uname", "", { "mrs":true });
 			var container = new Container("ajrelic/debian", inner, { sudo:true });
@@ -18,7 +18,7 @@ describe("Container", function() {
 		});
 	});
 
-	describe("generate", function() {
+	xdescribe("generate", function() {
 		it("uname", function() {
 			var inner = new ShellCMD("uname", "", { "mrs":true });
 			var container = new Container("ajrelic/debian", inner, { sudo:true });
@@ -36,7 +36,10 @@ describe("Container", function() {
 
 	describe("run", function() {
 		it("uname", function(done) {
-			var container = new Container("debian", "uname", { sudo:true }, "latest");
+			var container = new Container("debian", "uname", { 
+				sudo:true,
+				"cidfile": "/tmp/test.cid"
+			}, "latest");
 			
 			container.run().then(function(result) {
 				assert.equal(result.stdout, "Linux\n");
