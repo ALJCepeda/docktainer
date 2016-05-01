@@ -38,22 +38,21 @@ describe("Command", function() {
 		it("no args", function() {
 			var php = new CMD("php", "index.php");
 			var debian = new CMD("ajrelic/debian", php);
-			var cmd = new CMD("docker", {}, "run", debian, true);
+			var cmd = new CMD(true, "docker", "run", debian);
 			
-			var result = cmd.generate();
+			var result = cmd.value;
 			assert.equal(result, "sudo docker run ajrelic/debian php index.php");
 		});
 
 		it("few args", function() {
 			var node = new CMD("nodejs", "app.js");
-			var ubuntu = new CMD("ubuntu", node);
-			var cmd = new CMD("docker", {
+			var cmd = new CMD(true, "docker", {
 				"kernel-memory":"5M",
 				rm:true,
 				id:"Test Container"
-			}, "run", ubuntu, true);
-			
-			var result = cmd.generate();
+			}, "run ubuntu", node);
+
+			var result = cmd.value;
 			assert.equal(result, "sudo docker --kernel-memory=\"5M\" --rm --id=\"Test Container\" run ubuntu nodejs app.js");
 		});
 	});

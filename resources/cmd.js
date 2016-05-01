@@ -1,30 +1,19 @@
 var Base = require("./../libs/barejs/index");
 var b = new Base();
 
-var CMD = function(name, args, action, append, sudo) {
+var CMD = function(sudo) {
 	this.sudo = sudo || false;
-	this.name = name;
-	this.args = args || {};
-	this.action = action || "";
-	this.append = append || "";
-};
-
-CMD.prototype.generate = function() {
-	var result = []; 
-
-	if(this.sudo === true) { result.push("sudo"); }
 	
-	result.push(this.name);
+	var result = [];
+	if(sudo && sudo === true) { 
+		result.push("sudo"); 
+		[].splice.call(arguments, 0, 1);
+	}
 
-	var args = this.unpack(this.args);
-	if( args !== "" ) { result.push(args); }
+	var args = [].splice.call(arguments, 0);
+	result.push(this.unpack(args));
 
-	if( this.action !== "" ) { result.push(this.action); }
-
-	var append = this.unpack(this.append);
-	if( append !== "" ) { result.push(append); }
-
-	return result.join(" ");
+	this.value = result.join(" ");
 };
 
 CMD.prototype.unpack = function(args) {
@@ -33,7 +22,7 @@ CMD.prototype.unpack = function(args) {
 	if(typeof args === "string") {
 		result.push(args);
 	} else if(args instanceof CMD) {
-		result.push(args.generate());
+		result.push(args.value);
 	} else if(Array.isArray(args)) {
 
 		for(var index in args) {
@@ -60,7 +49,7 @@ CMD.prototype.unpack = function(args) {
 				}
 			}
 		}
-		
+
 	}
 	
 	return result.join(" ");
