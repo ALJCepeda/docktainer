@@ -1,4 +1,4 @@
 var assert = require("assert");
 
 require("./cmd");
-//require("./container");
+require("./container");

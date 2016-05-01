@@ -1,36 +1,38 @@
 var Promise = require("promise");
 var cp = require("child_process");
 
-var CMD = require("./CMD");
+var CMD = require("./cmd");
 var Base = require("./../libs/barejs/index");
 var b = new Base();
 /*
 	options - DockerArguments - Startup info for docker container
 */
-var Docktainer = function(image, inner, options, tag) {
+var Docktainer = function(name, inner, options, tag) {
 	this._id = "";
 	this._pid = 0;
 	this._cmd = "";
 
-	this.image = image || "";
+	this.sudo = true;
+	this.name = name || "";
 	this.inner = inner || "";
 	this.options = options || {};
 	this.tag = tag || "latest";
-	
 
 	this.process;
 };
 
-Docktainer.prototype.generate = function() {
-	var image = this.image;
+Docktainer.prototype.generate = function(action) {
+	var name = this.name;
 	var inner = this.inner;
 	var options = this.options;
 	var tag = this.tag;	
 
-	var action = b.supplant("run {0}:{1}", [ image, tag ]);
-	var commander = new CMD("docker", action, options, inner);
+	if(inner instanceof CMD) { inner = inner.value; }
 
-	var result = commander.generate();
+	var image = b.supplant("{0}:{1} {2}", [ name, tag, inner ]);
+	var cmd = new CMD(this.sudo, "docker", action, options, image);
+
+	var result = cmd.value;
 	return result;
 };
 
@@ -38,8 +40,7 @@ Docktainer.prototype.run = function(expose) {
 	if(this.isRunning() === true) {
 		return false;
 	} else {
-		var cmd = this._cmd = this.generate();
-		console.log(cmd);
+		var cmd = this._cmd = this.generate("run");
 		return this.exec(cmd, expose);
 	}
 };

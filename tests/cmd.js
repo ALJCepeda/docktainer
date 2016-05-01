@@ -2,7 +2,7 @@ var assert = require("assert");
 var CMD = require("./../resources/cmd");
 
 describe("Command", function() {
-	xdescribe("unpack", function() {
+	describe("unpack", function() {
 		it("empty args", function() {
 			var command = new CMD();
 			var result = command.unpack({});

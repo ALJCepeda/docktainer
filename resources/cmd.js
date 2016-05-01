@@ -12,7 +12,7 @@ var CMD = function(sudo) {
 
 	var args = [].splice.call(arguments, 0);
 	result.push(this.unpack(args));
-
+	
 	this.value = result.join(" ");
 };
 
@@ -31,7 +31,6 @@ CMD.prototype.unpack = function(args) {
 		}
 
 	} else if(typeof args === "object") {
-
 		for(var key in args) {
 			var value = args[key];
 
@@ -49,10 +48,9 @@ CMD.prototype.unpack = function(args) {
 				}
 			}
 		}
-
 	}
-	
-	return result.join(" ");
+
+	return result.filter(function(e) { return e !== ""; }).join(" ");
 };
 
 module.exports = CMD;
