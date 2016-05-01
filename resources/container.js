@@ -40,12 +40,7 @@ Docktainer.prototype.run = function(expose) {
 	} else {
 		var cmd = this._cmd = this.generate();
 
-		/*
-		this.exec(cmd, expose).then(function(result) {
-			console.log(result.stdout);
-		}).catch(function(result) {
-			console.log(result.error);
-		});*/
+		return this.exec(cmd, expose);
 	}
 };
 

@@ -34,11 +34,17 @@ describe("Container", function() {
 		});
 	})
 
-	xdescribe("run", function(done) {
-		it("uname", function() {
-			var container = new Container("ajrelic/debian", "ps", {}, "latest");
-
-			container.run();
+	describe("run", function() {
+		it("uname", function(done) {
+			var container = new Container("debian", "uname", { sudo:true }, "latest");
+			
+			container.run().then(function(result) {
+				assert.equal(result.stdout, "Linux\n");
+				done();
+			}).catch(function(error) {
+				console.log(error);
+				done();
+			});
 		});
 	});
 });
