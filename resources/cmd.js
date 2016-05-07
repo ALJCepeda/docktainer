@@ -12,7 +12,7 @@ var CMD = function(sudo) {
 
 	var args = [].splice.call(arguments, 0);
 	result.push(this.unpack(args));
-	
+
 	this.value = result.join(" ");
 };
 
@@ -34,17 +34,19 @@ CMD.prototype.unpack = function(args) {
 		for(var key in args) {
 			var value = args[key];
 
-			if(key.length === 1) {
-				result.push(b.supplant("-{0} {1}", [ key, value ]));
-			} else {
-				if(value === true) {
-					result.push(b.supplant("--{0}", [ key ]));
-				} else if(value !== false) {
-					if(Array.isArray(value) === true && value.length > 0) {
-						result.push(b.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
-					} else {
-						result.push(b.supplant("--{0}=\"{1}\"", [ key, value ]));
-					}
+			if(key === "flags") {
+				if(Array.isArray(value) === true && value.length > 0) {
+					result.push(b.supplant("-{0}", [ value.join("") ]));
+				} else {
+					result.push(b.supplant("-{0}", [ value ]));
+				}
+			} else if (value === true) {
+				result.push(b.supplant("--{0}", [ key ]));
+			} else if (value !== false) {
+				if(Array.isArray(value) === true && value.length > 0) {
+					result.push(b.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
+				} else {
+					result.push(b.supplant("--{0}=\"{1}\"", [ key, value ]));
 				}
 			}
 		}
