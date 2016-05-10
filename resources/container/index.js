@@ -19,6 +19,12 @@ var Docktainer = function(name, inner, options, tag) {
 	this.tag = tag || "latest";
 
 	this.process;
+
+	this.disconnect = 0;
+	this.onDisconnect;
+
+	this.kill = 0;
+	this.onKill;
 };
 
 Docktainer.prototype.generate = function(action) {
@@ -38,40 +44,68 @@ Docktainer.prototype.generate = function(action) {
 
 Docktainer.prototype.run = function(expose) {
 	if(this.isRunning() === true) {
-		return false;
+		return Promise.reject("Container is already running");
 	} else {
 		var cmd = this._cmd = this.generate("run");
 		return this.exec(cmd, expose);
 	}
 };
 
-Docktainer.prototype.isRunning = function() {
-	if(this._pid === 0 || this.name === "") {
-		//Container was never assigned a name, cannot be running
-		return false;
-	} else {
-		//Run command to see if it's running
+Docktainer.prototype.disconnect = function(expose) {
+	if(this.isRunning() === true) {
+		var cmd = new CMD(this.sudo, "docker kill", this.name);
+		console.log(cmd);
 
-		return true;
+		return this.exec(cmd, expose);
+	} else {
+		return Promise.resolve({ stdout:"", stdin:"", stderr:"" });
 	}
+}
+
+Docktainer.prototype.isRunning = function() {
+	return (this.process && this.process.connected === true);
 };
 
 Docktainer.prototype.exec = function(command, expose) {
+	var self = this;
 	//Execute docker command
 	var promise = new Promise(function(resolve, reject) {
 
-		this.process = cp.exec(command, function(error, stdout, stderr) {
+		self.process = cp.exec(command, function(error, stdout, stderr) {
 			if(error && error.kill === true) {
 				reject({ error:error, stdout:stdout, stderr:stderr, command:command });
 			} else {
 				resolve({ stdout:stdout, stderr:stderr, command:command });
 			}
-		}.bind(this));
+		});
+
+		if(self.disconnect > 0) {
+			console.log("Set disconnect");
+			setTimeout(function() {
+				self.process.kill();
+
+				if(typeof self.onDisconnect !== "undefined") {
+					self.onDisconnect();
+				}
+			}, self.disconnect);
+		}
+
+		if(self.kill > 0) {
+			console.log("Set disconnect");
+			setTimeout(function() {
+				self.process.kill();
+
+				if(typeof self.onKill !== "undefined") {
+					self.onKill();
+				}
+			}, self.kill);
+		}
 
 		if(typeof expose !== "undefined") {
-			expose(this.process);
+			expose(self.process);
 		}
-	}.bind(this));
+
+	});
 
 	return promise;
 };
