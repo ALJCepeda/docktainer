@@ -1,5 +1,5 @@
-var Base = require("./../libs/barejs/index");
-var b = new Base();
+var Bare = require("bareutil");
+var b = new Bare();
 
 var CMD = function(sudo) {
 	this.sudo = sudo || false;

@@ -1,9 +1,9 @@
 var Promise = require("promise");
 var cp = require("child_process");
 
-var CMD = require("./cmd");
-var Base = require("./../libs/barejs/index");
-var b = new Base();
+var CMD = require("../cmd");
+var Bare = require("bareutil");
+var b = new Bare();
 /*
 	options - DockerArguments - Startup info for docker container
 */
