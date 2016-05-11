@@ -12,28 +12,38 @@ var Docktainer = function(name, inner, options, tag) {
 	this._pid = 0;
 	this._cmd = "";
 
-	this.sudo = true;
+	this.sudo = options.sudo || true;
 	this.name = name || "";
 	this.inner = inner || "";
 	this.options = options || {};
 	this.tag = tag || "latest";
 
-	this.process;
+	this.process = null;
 
 	this.disconnect = 0;
-	this.onDisconnect;
+	this.onDisconnect = null;
 
 	this.kill = 0;
-	this.onKill;
+	this.onKill = null;
+
+	delete options.sudo;
+};
+
+Docktainer.prototype.run = function(expose) {
+	if(this.isRunning() === true) {
+		return Promise.reject("Container is already running");
+	} else {
+		return this.exec("run", expose);
+	}
 };
 
 Docktainer.prototype.generate = function(action) {
 	var name = this.name;
-	var inner = this.inner;
 	var options = this.options;
-	var tag = this.tag;	
+	var tag = this.tag;
 
-	if(inner instanceof CMD) { inner = inner.value; }
+	var inner = this.inner;
+	if(this.inner instanceof CMD) { inner = this.inner.value; }
 
 	var image = b.supplant("{0}:{1} {2}", [ name, tag, inner ]);
 	var cmd = new CMD(this.sudo, "docker", action, options, image);
@@ -42,15 +52,8 @@ Docktainer.prototype.generate = function(action) {
 	return result;
 };
 
-Docktainer.prototype.run = function(expose) {
-	if(this.isRunning() === true) {
-		return Promise.reject("Container is already running");
-	} else {
-		var cmd = this._cmd = this.generate("run");
-		return this.exec(cmd, expose);
-	}
-};
-
+/*
+Needs to be redone. Possibly a Process class for exec instead
 Docktainer.prototype.disconnect = function(expose) {
 	if(this.isRunning() === true) {
 		var cmd = new CMD(this.sudo, "docker kill", this.name);
@@ -60,27 +63,31 @@ Docktainer.prototype.disconnect = function(expose) {
 	} else {
 		return Promise.resolve({ stdout:"", stdin:"", stderr:"" });
 	}
-}
+};
+*/
 
 Docktainer.prototype.isRunning = function() {
 	return (this.process && this.process.connected === true);
 };
 
-Docktainer.prototype.exec = function(command, expose) {
+Docktainer.prototype.exec = function(action, expose) {
 	var self = this;
+
+	var cmd = this._cmd = this.generate(action);
+
 	//Execute docker command
 	var promise = new Promise(function(resolve, reject) {
 
-		self.process = cp.exec(command, function(error, stdout, stderr) {
+		console.log("Executing command: " + cmd);
+		self.process = cp.exec(cmd, function(error, stdout, stderr) {
 			if(error && error.kill === true) {
 				reject({ error:error, stdout:stdout, stderr:stderr, command:command });
 			} else {
-				resolve({ stdout:stdout, stderr:stderr, command:command });
+				resolve({ stdout:stdout, stderr:stderr, command:cmd });
 			}
 		});
 
 		if(self.disconnect > 0) {
-			console.log("Set disconnect");
 			setTimeout(function() {
 				self.process.kill();
 
@@ -91,7 +98,6 @@ Docktainer.prototype.exec = function(command, expose) {
 		}
 
 		if(self.kill > 0) {
-			console.log("Set disconnect");
 			setTimeout(function() {
 				self.process.kill();
 

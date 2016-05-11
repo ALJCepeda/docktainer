@@ -1,8 +1,25 @@
-var assert = require("assert");
+var tape = require("tape");
 var fs = require("fs");
 var Container = require("./../resources/container");
-var ShellCMD = require("./../resources/cmd");
+var CMD = require("./../resources/cmd");
 
+tape("exec", function(t) {
+	var cmd = new CMD("uname", { "flags":"mrs" });
+	var container = new Container("aljcepeda/debian", cmd, { sudo:true });
+
+	t.plan(1);
+
+	container.exec("run").then(function(result) {
+		t.equal(
+			result.stdout,
+			"Linux 3.13.0-85-generic x86_64\n",
+			"Outputs the kernel version"
+		);
+	}).catch(t.fail);
+});
+
+
+/*
 describe("Container", function() {
 	xdescribe("exec", function() {
 		it("uname", function(done) {
@@ -65,4 +82,4 @@ describe("Container", function() {
 			});
 		});
 	});
-});
+});*/
