@@ -1,59 +1,63 @@
-var assert = require("assert");
+var tape = require("tape");
 var CMD = require("./../resources/cmd");
 
-describe("Command", function() {
-	describe("unpack", function() {
-		it("empty args", function() {
-			var command = new CMD();
-			var result = command.unpack({});
-			assert(result === "");
-		});
+tape("unpack", function(t) {
+	var cmd = new CMD();
 
-		it("few args", function() {
-			var command = new CMD();
-			var result = command.unpack({
-				"kernel-memory":"5M",
-				"rm":true,
-				"id":"Test Container"
-			});
+	t.equal(
+		cmd.unpack({}),
+		"",
+		"Empty args return emtpy string"
+	);
 
-			assert.equal(result, "--kernel-memory=\"5M\" --rm --id=\"Test Container\"");
-		});
+	t.equal(
+		cmd.unpack({
+			"kernel-memory":"5M",
+			"rm":true,
+			"id":"Test Container"
+		}),
+		"--kernel-memory=\"5M\" --rm --id=\"Test Container\"",
+		"Unpacks arguments"
+	);
 
-		it("nested args", function() {
-			var command = new CMD();
-			var result = command.unpack({
-				"id":"Moo",
-				"volumes":[
-					"/var/tmp:/var/hosttmp",
-					"/dev/stdin:/dev/hoststdin"
-				]
-			});
+	t.equal(
+		cmd.unpack({
+			"id":"Moo",
+			"volumes":[
+				"/var/tmp:/var/hosttmp",
+				"/dev/stdin:/dev/hoststdin"
+			]
+		}),
+		"--id=\"Moo\" --volumes=\"/var/tmp:/var/hosttmp,/dev/stdin:/dev/hoststdin\"",
+		"Unpacks nested arguments"
+	);
 
-			assert.equal(result, "--id=\"Moo\" --volumes=\"/var/tmp:/var/hosttmp,/dev/stdin:/dev/hoststdin\"");
-		})
-	});
+	t.end();
+});
 
-	describe("generate", function() {
-		it("no args", function() {
-			var php = new CMD("php", "index.php");
-			var debian = new CMD("ajrelic/debian", php);
-			var cmd = new CMD(true, "docker", "run", debian);
-			
-			var result = cmd.value;
-			assert.equal(result, "sudo docker run ajrelic/debian php index.php");
-		});
+tape("generate", function(t) {
+	var php = new CMD("php", "index.php");
+	var debian = new CMD("ajrelic/debian", php);
+	var case1 = new CMD(true, "docker", "run", debian);
 
-		it("few args", function() {
-			var node = new CMD("nodejs", "app.js");
-			var cmd = new CMD(true, "docker", {
-				"kernel-memory":"5M",
-				rm:true,
-				id:"Test Container"
-			}, "run ubuntu", node);
+	t.equal(
+		case1.value,
+		"sudo docker run ajrelic/debian php index.php",
+		"Unpacks nested commands"
+	);
 
-			var result = cmd.value;
-			assert.equal(result, "sudo docker --kernel-memory=\"5M\" --rm --id=\"Test Container\" run ubuntu nodejs app.js");
-		});
-	});
+	var node = new CMD("nodejs", "app.js");
+	var case2 = new CMD(true, "docker", {
+		"kernel-memory":"5M",
+		rm:true,
+		id:"Test Container"
+	}, "run ubuntu", node);
+
+	t.equal(
+		case2.value,
+		"sudo docker --kernel-memory=\"5M\" --rm --id=\"Test Container\" run ubuntu nodejs app.js",
+		"Fully qualified docker command"
+	);
+
+	t.end();
 });
