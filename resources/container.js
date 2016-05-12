@@ -1,7 +1,7 @@
 var Promise = require("promise");
 var cp = require("child_process");
 
-var CMD = require("../cmd");
+var CMD = require("./cmd");
 var Bare = require("bareutil");
 var b = new Bare();
 /*
