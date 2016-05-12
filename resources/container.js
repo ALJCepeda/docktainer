@@ -12,7 +12,7 @@ var Docktainer = function(name, inner, options, tag) {
 	this._pid = 0;
 	this._cmd = "";
 
-	this.sudo = options.sudo || true;
+	this.sudo =  true;
 	this.name = name || "";
 	this.inner = inner || "";
 	this.options = options || {};
@@ -26,7 +26,10 @@ var Docktainer = function(name, inner, options, tag) {
 	this.kill = 0;
 	this.onKill = null;
 
-	delete options.sudo;
+	if(options && options.sudo) {
+		this.sudo = options.sudo;
+		delete options.sudo;
+	}
 };
 
 Docktainer.prototype.run = function(expose) {
