@@ -91,6 +91,7 @@ Docktainer.prototype.exec = function(action, expose) {
 		});
 
 		if(self.disconnect > 0) {
+			console.log("Setup disconnect");
 			setTimeout(function() {
 				self.process.kill();
 
@@ -101,6 +102,7 @@ Docktainer.prototype.exec = function(action, expose) {
 		}
 
 		if(self.kill > 0) {
+			console.log("Setup kill");
 			setTimeout(function() {
 				self.process.kill();
 
@@ -111,6 +113,7 @@ Docktainer.prototype.exec = function(action, expose) {
 		}
 
 		if(typeof expose !== "undefined") {
+			console.log("Exposing process");
 			expose(self.process);
 		}
 

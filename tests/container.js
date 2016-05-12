@@ -3,25 +3,6 @@ var fs = require("fs");
 var Container = require("./../resources/container");
 var CMD = require("./../resources/cmd");
 
-/*
-describe("Container", function() {
-	xdescribe("generate", function() {
-		it("uname", function() {
-			var inner = new ShellCMD("uname", { "mrs":true });
-			var container = new Container("ajrelic/debian", inner);
-			var result = container.generate("run");
-
-			assert.equal(result, "sudo docker run ajrelic/debian:latest uname --mrs");
-		});
-		it("ps", function() {
-			var container = new Container("ajrelic/debian", "ps");
-			var result = container.generate("run");
-
-			assert.equal(result, "sudo docker run ajrelic/debian:latest ps");
-		});
-	});
-	*/
-
 tape("generate", function(t) {
 	var inner = new CMD("uname", { "flags":"mrs" });
 	var case1 = new Container("ajrelic/debian", inner);
@@ -59,38 +40,21 @@ tape("exec", function(t) {
 	}).catch(t.fail);
 });
 
+tape("run", function(t) {
+	var container = new Container("debian", "uname");
+
+	t.plan(1);
+	container.run().then(function(result) {
+		t.equal(
+			result.stdout,
+			"Linux\n",
+			"Outputs kernel type"
+		);
+	}).catch(t.fail);
+});
 
 /*
 describe("Container", function() {
-	xdescribe("generate", function() {
-		it("uname", function() {
-			var inner = new ShellCMD("uname", { "mrs":true });
-			var container = new Container("ajrelic/debian", inner);
-			var result = container.generate("run");
-
-			assert.equal(result, "sudo docker run ajrelic/debian:latest uname --mrs");
-		});
-		it("ps", function() {
-			var container = new Container("ajrelic/debian", "ps");
-			var result = container.generate("run");
-
-			assert.equal(result, "sudo docker run ajrelic/debian:latest ps");
-		});
-	});
-
-	describe("run", function() {
-		xit("uname", function(done) {
-			var container = new Container("debian", "uname");
-
-			container.run().then(function(result) {
-				assert.equal(result.stdout, "Linux\n");
-				done();
-			}).catch(function(error) {
-				console.log(error);
-				done();
-			});
-		});
-
 		it("disconnect", function(done) {
 			this.timeout(50000);
 
