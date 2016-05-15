@@ -2,12 +2,11 @@ var Promise = require("promise");
 var cp = require("child_process");
 
 var CMD = require("./cmd");
-var Bare = require("bareutil");
-var b = new Bare();
+var B = require("bareutil");
 /*
 	options - DockerArguments - Startup info for docker container
 */
-var Docktainer = function(name, inner, options, tag) {
+var Docktainer = function(name, tag, inner, options) {
 	this._id = "";
 	this._pid = 0;
 	this._cmd = "";
@@ -26,9 +25,11 @@ var Docktainer = function(name, inner, options, tag) {
 	this.kill = 0;
 	this.onKill = null;
 
-	if(options && options.sudo) {
-		this.sudo = options.sudo;
-		delete options.sudo;
+	if(options) {
+		console.log(B);
+		B.Obj.merge(this, options);
+
+		this.options = B.Obj.filter(options, B.Obj.values(this));
 	}
 };
 
@@ -48,7 +49,7 @@ Docktainer.prototype.generate = function(action) {
 	var inner = this.inner;
 	if(this.inner instanceof CMD) { inner = this.inner.value; }
 
-	var image = b.supplant("{0}:{1} {2}", [ name, tag, inner ]);
+	var image = B.supplant("{0}:{1} {2}", [ name, tag, inner ]);
 	var cmd = new CMD(this.sudo, "docker", action, options, image);
 
 	var result = cmd.value;

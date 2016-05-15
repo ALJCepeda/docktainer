@@ -1,12 +1,11 @@
-var Bare = require("bareutil");
-var b = new Bare();
+var B = require("bareutil");
 
 var CMD = function(sudo) {
 	this.sudo = sudo || false;
-	
+
 	var result = [];
-	if(sudo && sudo === true) { 
-		result.push("sudo"); 
+	if(sudo && sudo === true) {
+		result.push("sudo");
 		[].splice.call(arguments, 0, 1);
 	}
 
@@ -36,17 +35,17 @@ CMD.prototype.unpack = function(args) {
 
 			if(key === "flags") {
 				if(Array.isArray(value) === true && value.length > 0) {
-					result.push(b.supplant("-{0}", [ value.join("") ]));
+					result.push(B.supplant("-{0}", [ value.join("") ]));
 				} else {
-					result.push(b.supplant("-{0}", [ value ]));
+					result.push(B.supplant("-{0}", [ value ]));
 				}
 			} else if (value === true) {
-				result.push(b.supplant("--{0}", [ key ]));
+				result.push(B.supplant("--{0}", [ key ]));
 			} else if (value !== false) {
 				if(Array.isArray(value) === true && value.length > 0) {
-					result.push(b.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
+					result.push(B.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
 				} else {
-					result.push(b.supplant("--{0}=\"{1}\"", [ key, value ]));
+					result.push(B.supplant("--{0}=\"{1}\"", [ key, value ]));
 				}
 			}
 		}

@@ -1,7 +1,7 @@
-var DockerCommand = require("./resources/cmd");
-var DockerContainer = require("./resources/container");
+var Command = require("./resources/cmd");
+var Container = require("./resources/container");
 
 module.exports = {
-	DockerCommand:DockerCommand,
-	DockerContainer:DockerContainer
+	Command:Command,
+	Container:Container
 };

@@ -2,10 +2,10 @@ var tape = require("tape");
 var fs = require("fs");
 var Container = require("./../resources/container");
 var CMD = require("./../resources/cmd");
-
+/*
 tape("generate", function(t) {
 	var inner = new CMD("uname", { "flags":"mrs" });
-	var case1 = new Container("ajrelic/debian", inner);
+	var case1 = new Container("ajrelic/debian", "latest", inner);
 
 	t.equal(
 		case1.generate("run"),
@@ -27,7 +27,7 @@ tape("generate", function(t) {
 
 tape("exec", function(t) {
 	var cmd = new CMD("uname", { "flags":"mrs" });
-	var container = new Container("aljcepeda/debian", cmd, { sudo:true });
+	var container = new Container("aljcepeda/debian", "latest", cmd, { sudo:true });
 
 	t.plan(1);
 
@@ -41,7 +41,7 @@ tape("exec", function(t) {
 });
 
 tape("run", function(t) {
-	var container = new Container("debian", "uname");
+	var container = new Container("debian", "latest", "uname");
 
 	t.plan(1);
 	container.run().then(function(result) {
@@ -52,24 +52,15 @@ tape("run", function(t) {
 		);
 	}).catch(t.fail);
 });
-
-/*
-describe("Container", function() {
-		it("disconnect", function(done) {
-			this.timeout(50000);
-
-			var container = new Container("debian", "", { flags:"i" });
-			container.disconnect = 5000;
-			container.onDisconnect = function() {
-				console.log("did kill");
-			};
-
-			container.run().then(function(result) {
-				done();
-			}).catch(function(error) {
-				console.log(error);
-				done();
-			});
-		});
+*/
+tape("disconnect", function(t) {
+	var container = new Container("debian", "latest", "ps", {
+		disconnect:5000,
+		onDisconnect:function() {
+			console.log("did disconnect!");
+		}
 	});
-});*/
+
+	console.log(container.disconnect);
+	console.log(container.options);
+});
