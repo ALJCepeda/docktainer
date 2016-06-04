@@ -15,6 +15,10 @@ Command.prototype.build = function(action) {
 	var tag = this.tag;
 
 	var inner = this.inner;
+	if(B.Val.array(this.inner) === true) {
+		inner = glue.apply(null, this.inner);
+	}
+
 	var image = B.supplant("{0}:{1} {2}", [ name, tag, inner ]);
 
 	if(this.sudo === true) {
