@@ -1,17 +1,15 @@
 var tape = require("tape");
-var CMD = require("./../resources/cmd");
+var glue = require("./../resources/glue");
 
-tape("unpack", function(t) {
-	var cmd = new CMD();
-
+tape("glue", function(t) {
 	t.equal(
-		cmd.unpack({}),
+		glue({}),
 		"",
 		"Empty args return emtpy string"
 	);
 
 	t.equal(
-		cmd.unpack({
+		glue({
 			"kernel-memory":"5M",
 			"rm":true,
 			"id":"Test Container"
@@ -21,7 +19,7 @@ tape("unpack", function(t) {
 	);
 
 	t.equal(
-		cmd.unpack({
+		glue({
 			"id":"Moo",
 			"volumes":[
 				"/var/tmp:/var/hosttmp",
@@ -35,26 +33,26 @@ tape("unpack", function(t) {
 	t.end();
 });
 
-tape("generate", function(t) {
-	var php = new CMD("php", "index.php");
-	var debian = new CMD("ajrelic/debian", php);
-	var case1 = new CMD(true, "docker", "run", debian);
+tape("nested glue", function(t) {
+	var php = glue("php", "index.php");
+	var debian = glue("ajrelic/debian", php);
+	var case1 = glue("sudo", "docker", "run", debian);
 
 	t.equal(
-		case1.value,
+		case1,
 		"sudo docker run ajrelic/debian php index.php",
 		"Unpacks nested commands"
 	);
 
-	var node = new CMD("nodejs", "app.js");
-	var case2 = new CMD(true, "docker", {
+	var node = glue("nodejs", "app.js");
+	var case2 = glue("sudo", "docker", {
 		"kernel-memory":"5M",
 		rm:true,
 		id:"Test Container"
 	}, "run ubuntu", node);
 
 	t.equal(
-		case2.value,
+		case2,
 		"sudo docker --kernel-memory=\"5M\" --rm --id=\"Test Container\" run ubuntu nodejs app.js",
 		"Fully qualified docker command"
 	);

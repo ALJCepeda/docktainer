@@ -3,19 +3,12 @@ var cp = require("child_process");
 
 var CMD = require("./cmd");
 var B = require("bareutil");
-/*
-	options - DockerArguments - Startup info for docker container
-*/
-var Docktainer = function(name, tag, inner, options) {
-	this._id = "";
-	this._pid = 0;
-	this._cmd = "";
 
-	this.sudo =  true;
-	this.name = name || "";
-	this.inner = inner || "";
-	this.options = options || {};
-	this.tag = tag || "latest";
+/* options - DockerArguments - Startup info for docker container */
+var Docktainer = function(name, tag, inner, options) {
+	this.id = "";
+	this.pid = 0;
+	this.cmd = "";
 
 	this.process = null;
 
@@ -24,13 +17,6 @@ var Docktainer = function(name, tag, inner, options) {
 
 	this.kill = 0;
 	this.onKill = null;
-
-	if(options) {
-		console.log(B);
-		B.Obj.merge(this, options);
-
-		this.options = B.Obj.filter(options, B.Obj.values(this));
-	}
 };
 
 Docktainer.prototype.run = function(expose) {
@@ -56,19 +42,6 @@ Docktainer.prototype.generate = function(action) {
 	return result;
 };
 
-/*
-Needs to be redone. Possibly a Process class for exec instead
-Docktainer.prototype.disconnect = function(expose) {
-	if(this.isRunning() === true) {
-		var cmd = new CMD(this.sudo, "docker kill", this.name);
-		console.log(cmd);
-
-		return this.exec(cmd, expose);
-	} else {
-		return Promise.resolve({ stdout:"", stdin:"", stderr:"" });
-	}
-};
-*/
 
 Docktainer.prototype.isRunning = function() {
 	return (this.process && this.process.connected === true);
@@ -77,12 +50,10 @@ Docktainer.prototype.isRunning = function() {
 Docktainer.prototype.exec = function(action, expose) {
 	var self = this;
 
-	var cmd = this._cmd = this.generate(action);
+	var cmd = this.cmd = this.generate(action);
 
 	//Execute docker command
-	var promise = new Promise(function(resolve, reject) {
-
-		console.log("Executing command: " + cmd);
+	return new Promise(function(resolve, reject) {
 		self.process = cp.exec(cmd, function(error, stdout, stderr) {
 			if(error && error.kill === true) {
 				reject({ error:error, stdout:stdout, stderr:stderr, command:command });
@@ -119,8 +90,6 @@ Docktainer.prototype.exec = function(action, expose) {
 		}
 
 	});
-
-	return promise;
 };
 
 module.exports = Docktainer;
