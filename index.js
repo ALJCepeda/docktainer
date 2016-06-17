@@ -1,4 +1,4 @@
-var Command = require("./resources/cmd");
+var Command = require("./resources/command");
 var Container = require("./resources/container");
 
 module.exports = {
