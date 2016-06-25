@@ -1,4 +1,5 @@
-var B = require("bareutil");
+var bare = require("bareutil");
+var misc = bare.misc;
 
 /*
 	Initially breaks down arguments and feeds them to unpack then rebuilds for final result
@@ -37,17 +38,17 @@ var unpack = function(args) {
 
 			if(key === "flags") {
 				if(Array.isArray(value) === true && value.length > 0) {
-					result.push(B.supplant("-{0}", [ value.join("") ]));
+					result.push(misc.supplant("-{0}", [ value.join("") ]));
 				} else {
-					result.push(B.supplant("-{0}", [ value ]));
+					result.push(misc.supplant("-{0}", [ value ]));
 				}
 			} else if (value === true) {
-				result.push(B.supplant("--{0}", [ key ]));
+				result.push(misc.supplant("--{0}", [ key ]));
 			} else if (value !== false) {
 				if(Array.isArray(value) === true && value.length > 0) {
-					result.push(B.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
+					result.push(misc.supplant("--{0}=\"{1}\"", [ key, value.join(",") ]));
 				} else {
-					result.push(B.supplant("--{0}=\"{1}\"", [ key, value ]));
+					result.push(misc.supplant("--{0}=\"{1}\"", [ key, value ]));
 				}
 			}
 		}
