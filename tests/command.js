@@ -38,4 +38,6 @@ tape('coder', function(t) {
 		'sudo docker run --name="randomID" --rm --volume="tmp/randomID:/scripts" --workdir="/scripts" aljcepeda/PHP:latest php test.php',
 		'Simple way of generating docker commands'
 	);
+
+	t.end();
 });

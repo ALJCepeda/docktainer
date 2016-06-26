@@ -16,7 +16,7 @@ tape("exec", function(t) {
 	container.exec().then(function(result) {
 		t.equal(
 			result.stdout,
-			"Linux 3.13.0-85-generic x86_64\n",
+			"Linux 3.13.0-88-generic x86_64\n",
 			"Outputs the kernel version"
 		);
 	}).catch(t.fail).done(t.end);

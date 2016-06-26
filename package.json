@@ -21,7 +21,7 @@
     "url": "https://github.com/ALJCepeda/docktainer/issues"
   },
   "dependencies": {
-    "bareutil": "^0.2.2",
+    "bareutil": "^1.5.1",
     "promise": "^7.1.1",
     "tape": "^4.5.1"
   }
