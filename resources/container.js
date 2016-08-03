@@ -1,61 +1,76 @@
 var Promise = require("promise");
 var cp = require("child_process");
-var B = require("bareutil");
+var bare = require('bareutil');
+var val = bare.val;
+var misc = bare.misc;
 
 /* options - DockerArguments - Startup info for docker container */
-var Docktainer = function(command) {
-	this.command = command;
+var Docktainer = function(command, length, possibles) {
+	this.command = command.slice();
+	this.randomLength = length || 10;
+	this.randomPossibles = possibles || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
-	this.id = "";
-	this.pid = 0;
-	this.process = null;
+	this.name = '';
+	this.stdout = '';
+	this.stderr = ''
+	this.disconnect = 0;
 
-	this.kill = 0;
-	this.onKill = null;
-};
+	this.onDisconnect;
+	this.process;
 
-Docktainer.prototype.run = function(expose) {
-	if(this.isRunning() === true) {
-		return Promise.reject("Container is already running");
+	var name;
+	var index = this.command.indexOf('--name');
+	if(index === -1) {
+		name = misc.random(this.randomLength, this.randomPossibles);
+		this.command.splice(3, 0, '--name', name);
 	} else {
-		return this.exec(expose);
+		name = this.command[index+1];
 	}
+
+	this.name = name;
 };
 
-Docktainer.prototype.isRunning = function() {
-	return (this.process && this.process.connected === true);
-};
-
-Docktainer.prototype.exec = function(expose) {
+Docktainer.prototype.exec = function(options) {
+	var self = this;
 	var command = this.command;
 
-	//Execute docker command
 	return new Promise(function(resolve, reject) {
-		this.process = cp.exec(command, function(error, stdout, stderr) {
-			if(error && error.kill === true) {
-				reject({ error:error, stdout:stdout, stderr:stderr, command:command });
-			} else {
-				resolve({ stdout:stdout, stderr:stderr, command:command });
-			}
+		var cmd = command.shift();
+		self.process = cp.spawn(cmd, command);
+		self.stdout = '';
+		self.stderr = '';
+
+		self.process.stdout.on('data', (data) => {
+			self.stdout += data.toString();
+		});
+		self.process.stderr.on('data', (data) => {
+			self.stderr += data.toString();
 		});
 
-		if(this.kill > 0) {
-			console.log("Setup kill");
+		self.process.on('exit', (code, signal) => {
+			resolve({
+				stdout:self.stdout,
+				stderr:self.stderr
+			});
+		});
+		self.process.on('error', (error) => {
+			reject({
+				stdout:self.stdout,
+				stderr:self.stderr,
+				error:error
+			});
+		});
+
+		if(val.number(self.disconnect)) {
 			setTimeout(function() {
-				this.process.kill();
+				cp.exec('sudo docker kill ' + self.name);
 
-				if(typeof this.onKill !== "undefined") {
-					this.onKill();
+				if(val.function(self.onDisconnect)) {
+					self.onDisconnect();
 				}
-			}, this.kill);
+			}, self.disconnect);
 		}
-
-		if(typeof expose !== "undefined") {
-			console.log("Exposing process");
-			expose(this.process);
-		}
-
-	}.bind(this));
+	});
 };
 
 module.exports = Docktainer;

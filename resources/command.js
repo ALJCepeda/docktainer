@@ -1,33 +1,29 @@
-var bare = require('bareutil');
-var misc = bare.misc;
-var val = bare.val;
-var glue = require('./glue');
+var misc = require('bareutil').misc;
 
-var Command = function(name, tag, inner, options) {
-	this.sudo =  true;
-	this.name = name || '';
-	this.tag = tag || 'latest';
-	this.inner = inner || '';
-	this.options = options || {};
-};
+var Command = function(repository, name, tag, args, inner, innerArgs) {
+	this.sudo = true;
+	this.repository = repository;
+	this.name = name;
+	this.tag = tag;
+
+	this.args = args;
+	this.inner = inner;
+	this.innerArgs = innerArgs;
+}
 
 Command.prototype.build = function(action) {
-	var name = this.name;
-	var options = this.options;
-	var tag = this.tag;
+	var result = [];
+	var image = this.repository + '/' + this.name + ':' + this.tag;
 
-	var inner = this.inner;
-	if(val.array(this.inner) === true) {
-		inner = glue.apply(null, this.inner);
-	}
+	if(this.sudo) { result.push('sudo'); }
+	result.push('docker');
+	result.push(action);
+	[].push.apply(result, this.args);
+	result.push(image);
+	result.push(this.inner);
+	[].push.apply(result, this.innerArgs);
 
-	var image = misc.supplant('{0}:{1} {2}', [ name, tag, inner ]);
-
-	if(this.sudo === true) {
-		return glue('sudo', 'docker', action, options, image);
-	} else {
-		return glue('docker', action, options, image);
-	}
+	return result;
 };
 
 module.exports = Command;
