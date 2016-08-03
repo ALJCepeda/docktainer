@@ -6,7 +6,7 @@ var misc = bare.misc;
 
 /* options - DockerArguments - Startup info for docker container */
 var Docktainer = function(command, length, possibles) {
-	this.command = command.slice();
+	this.command = command;
 	this.randomLength = length || 10;
 	this.randomPossibles = possibles || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
 
@@ -17,26 +17,23 @@ var Docktainer = function(command, length, possibles) {
 
 	this.onDisconnect;
 	this.process;
-
-	var name;
-	var index = this.command.indexOf('--name');
-	if(index === -1) {
-		name = misc.random(this.randomLength, this.randomPossibles);
-		this.command.splice(3, 0, '--name', name);
-	} else {
-		name = this.command[index+1];
-	}
-
-	this.name = name;
 };
 
 Docktainer.prototype.exec = function(options) {
 	var self = this;
-	var command = this.command;
+	var args = this.command.build('run');
+
+	var index = args.indexOf('--name');
+	if(index === -1) {
+		this.name = misc.random(this.randomLength, this.randomPossibles);
+		args.splice(3, 0, '--name', this.name);
+	} else {
+		this.name = args[index+1];
+	}
 
 	return new Promise(function(resolve, reject) {
-		var cmd = command.shift();
-		self.process = cp.spawn(cmd, command);
+		var cmd = args.shift();
+		self.process = cp.spawn(cmd, args);
 		self.stdout = '';
 		self.stderr = '';
 

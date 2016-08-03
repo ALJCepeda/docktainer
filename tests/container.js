@@ -34,23 +34,13 @@ tape('disconnect', function(t) {
 		'while(true) { $moo = 1; echo $moo; }'
 	]);
 
-	var cmd = command.build('run');
-	console.log(cmd.join(' '));
-	var container = new Container(cmd);
-
+	var container = new Container(command);
 	container.disconnect = 500;
 	container.onDisconnect = function() {
-		console.log('Did disconnect');
+		t.pass('Disconnect hook was called');
 	};
 
 	container.exec().then(function(buf) {
-		console.log('stdout:', buf.stdout);
-		console.log('stderr:', buf.stderr);
-	}).catch(function(buf) {
-		console.log('stdout:', buf.stdout);
-		console.log('stderr:', buf.stderr);
-		console.log('error:', buf.error);
+		t.pass('Promise resolves with no errors');
 	}).done(t.end);
-
-
 });
