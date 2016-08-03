@@ -51,3 +51,54 @@ tape('disconnect', function(t) {
 		t.pass('Promise resolves with no errors');
 	}).done(t.end);
 });
+
+tape('kernel constraints', function(t) {
+	var command = new Command('aljcepeda', 'php', 'latest', [
+		'--rm',
+		'--cpu-shares',
+		'2',
+		'--memory',
+		'20M'
+	], 'php', [
+		'-r',
+		'$str="wontstaysmall"; $i=0; while(true) { $i = $i+1; $str = str_repeat($str, 5); echo $i . ": " . strlen($str) . "\n"; }'
+	]);
+
+	var container = new Container(command);
+	container.disconnect = 2000;
+	container.onDisconnect = function() {
+		t.fail('Container will end from memory before timeout is reached');
+	};
+
+	container.exec().then(function(buf) {
+		t.pass('Container ended when memory limit was reached');
+		t.end();
+	});
+});
+
+tape('disabled networking', function(t) {
+	var command = new Command('aljcepeda', 'php', 'latest', [
+		'--rm',
+		'--network',
+		'none'
+	], 'php', [
+		'-r',
+		'$google = file_get_contents("http://www.google.com"); echo $google;'
+	]);
+
+	var container = new Container(command);
+	container.exec().then(function(buf) {
+		t.equal(
+			buf.stderr,
+			'PHP Warning:  file_get_contents(): php_network_getaddresses: getaddrinfo failed: Name or service not known in Command line code on line 1\nPHP Warning:  file_get_contents(http://www.google.com): failed to open stream: php_network_getaddresses: getaddrinfo failed: Name or service not known in Command line code on line 1\n',
+			'Error for lack of LAN');
+
+		t.equal(
+			buf.stdout,
+			'',
+			'Nothing made it to stdout'
+		);
+
+		t.end();
+	})
+});

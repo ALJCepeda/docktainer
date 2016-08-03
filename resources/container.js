@@ -12,7 +12,8 @@ var Docktainer = function(command, length, possibles) {
 
 	this.name = '';
 	this.stdout = '';
-	this.stderr = ''
+	this.stderr = '';
+	this.timeout = '';
 	this.disconnect = 0;
 
 	this.onDisconnect;
@@ -59,7 +60,7 @@ Docktainer.prototype.exec = function(options) {
 		});
 
 		if(val.number(self.disconnect)) {
-			setTimeout(function() {
+			self.timeout = setTimeout(function() {
 				cp.exec('sudo docker kill ' + self.name);
 
 				if(val.function(self.onDisconnect)) {
@@ -67,6 +68,11 @@ Docktainer.prototype.exec = function(options) {
 				}
 			}, self.disconnect);
 		}
+	}).then(function(result) {
+		if(self.timeout !== '') {
+			clearTimeout(self.timeout);
+		}
+		return result;
 	});
 };
 
