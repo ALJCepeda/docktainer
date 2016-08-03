@@ -2,19 +2,22 @@ var tape = require('tape');
 var Command = require('./../resources/command');
 var misc = require('bareutil').misc;
 
-tape('generate', function(t) {
-	var case1 = new Command('aljcepeda/php', 'latest', 'php index.php');
+var xtape = function(name) { console.log('Manual skipped:', name); };
 
-	t.equal(
+tape('generate', function(t) {
+	var case1 = new Command('aljcepeda', 'php', 'latest', [], 'php', ['index.php']);
+
+	t.deepEqual(
 		case1.build('run'),
-		'sudo docker run aljcepeda/php:latest php index.php',
+		[ 'sudo', 'docker', 'run', 'aljcepeda/php:latest', 'php', 'index.php' ],
 		'Builds docker command'
 	);
 
-	var case2 = new Command('aljcepeda/debian', 'latest', [ 'uname', { 'flags':'mrs' } ]);
-	t.equal(
+
+	var case2 = new Command('aljcepeda', 'debian', 'latest', [], 'uname', ['-mrs']);
+	t.deepEqual(
 		case2.build('run'),
-		'sudo docker run aljcepeda/debian:latest uname -mrs',
+		[ 'sudo', 'docker', 'run', 'aljcepeda/debian:latest', 'uname', '-mrs' ],
 		'Generates uname command for debian container'
 	);
 
@@ -22,20 +25,31 @@ tape('generate', function(t) {
 });
 
 tape('coder', function(t) {
-	var name = misc.supplant("$0/$1", ['aljcepeda', 'PHP']);
-	var volume = misc.supplant("$0:$1", ['tmp/randomID', "/scripts"]);
+	var command = new Command('aljcepeda', 'php', 'latest', [
+		'--name',
+		'randomID',
+		'--rm',
+		'--volume',
+		'tmp/randomID:/scripts',
+		'-w',
+		'/scripts'
+	], 'php', ['test.php']);
 
-	var command = new Command(name, 'latest', 'php test.php', {
-		name:'randomID',
-		rm:true,
-		volume:volume,
-		workdir:"/scripts"
-	});
-
-	var cmd = command.build('run');
-	t.equal(
-		cmd,
-		'sudo docker run --name="randomID" --rm --volume="tmp/randomID:/scripts" --workdir="/scripts" aljcepeda/PHP:latest php test.php',
+	t.deepEqual(
+		command.build('run'),
+		[ 'sudo',
+		  'docker',
+		  'run',
+		  '--name',
+		  'randomID',
+		  '--rm',
+		  '--volume',
+		  'tmp/randomID:/scripts',
+		  '-w',
+		  '/scripts',
+		  'aljcepeda/php:latest',
+		  'php',
+		  'test.php' ],
 		'Simple way of generating docker commands'
 	);
 
