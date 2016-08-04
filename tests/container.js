@@ -72,6 +72,7 @@ tape('kernel constraints', function(t) {
 
 	container.exec().then(function(buf) {
 		t.pass('Container ended when memory limit was reached');
+		console.log(buf)
 		t.end();
 	});
 });
