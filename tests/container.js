@@ -27,7 +27,7 @@ tape('exec', function(t) {
 	container.exec().then(function(result) {
 		t.equal(
 			result.stdout,
-			'Linux 3.13.0-88-generic x86_64\n',
+			'Linux 3.13.0-92-generic x86_64\n',
 			'Outputs the kernel version'
 		);
 	}).catch(t.fail).done(t.end);
@@ -72,7 +72,18 @@ tape('kernel constraints', function(t) {
 
 	container.exec().then(function(buf) {
 		t.pass('Container ended when memory limit was reached');
-		console.log(buf)
+		t.equal(
+			buf.stdout,
+			'1: 65\n2: 325\n3: 1625\n4: 8125\n5: 40625\n6: 203125\n7: 1015625\n8: 5078125\n',
+			'String repeated 8 times'
+		);
+
+		t.equal(
+			buf.stderr,
+			'',
+			'No warning if kernel supports swap limit capabilities'
+		);
+
 		t.end();
 	});
 });
