@@ -24,7 +24,6 @@ var Docktainer = function(command, length, possibles) {
 Docktainer.prototype.exec = function(options) {
 	var self = this;
 	var args = this.command.build('run');
-	console.log(args.join(' '));
 	var index = args.indexOf('--name');
 	if(index === -1) {
 		this.name = misc.random(this.randomLength, this.randomPossibles);

@@ -6,7 +6,7 @@ var xtape = function(name) {
 	console.log('Manually skipped:', name);
 };
 
-xtape('exec', function(t) {
+tape('exec', function(t) {
 	var command = new Command('aljcepeda', 'php', 'latest', [
 		'--rm'
 	], 'php', [
@@ -27,7 +27,7 @@ xtape('exec', function(t) {
 	container.exec().then(function(result) {
 		t.equal(
 			result.stdout,
-			'Linux 4.5.0-1-ARCH x86_64\n',
+			'Linux 3.13.0-93-generic x86_64\n',
 			'Outputs the kernel version'
 		);
 	}).catch(t.fail).done(t.end);
@@ -42,7 +42,7 @@ tape('timeout', function(t) {
 	]);
 
 	var container = new Container(command);
-	container.timeout = 1000;
+	container.timeout = 500;
 	container.onTimeout = function() {
 		t.pass('Disconnect hook was called');
 	};
@@ -53,7 +53,7 @@ tape('timeout', function(t) {
 	}).done(t.end);
 });
 
-xtape('kernel constraints', function(t) {
+tape('kernel constraints', function(t) {
 	var command = new Command('aljcepeda', 'php', 'latest', [
 		'--rm',
 		'--cpu-shares',
@@ -66,7 +66,7 @@ xtape('kernel constraints', function(t) {
 	]);
 
 	var container = new Container(command);
-	container.timeout = 3000;
+	container.timeout = 1000;
 	container.onTimeout = function() {
 		t.fail('Container will end from memory before timeout is reached');
 	};
@@ -89,7 +89,7 @@ xtape('kernel constraints', function(t) {
 	});
 });
 
-xtape('disabled networking', function(t) {
+tape('disabled networking', function(t) {
 	var command = new Command('aljcepeda', 'php', 'latest', [
 		'--rm',
 		'--net',
