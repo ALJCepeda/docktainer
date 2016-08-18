@@ -1,7 +1,7 @@
 var misc = require('bareutil').misc;
 
 var Command = function(repository, name, tag, args, inner, innerArgs) {
-	this.sudo = true;
+	this.sudo = false;
 	this.repository = repository;
 	this.name = name;
 	this.tag = tag;
@@ -15,7 +15,7 @@ Command.prototype.build = function(action) {
 	var result = [];
 	var image = this.repository + '/' + this.name + ':' + this.tag;
 
-	if(this.sudo) { result.push('sudo'); }
+	if(this.sudo === true) { result.push('sudo'); }
 	result.push('docker');
 	result.push(action);
 	[].push.apply(result, this.args);

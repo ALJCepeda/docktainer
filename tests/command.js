@@ -9,7 +9,7 @@ tape('generate', function(t) {
 
 	t.deepEqual(
 		case1.build('run'),
-		[ 'sudo', 'docker', 'run', 'aljcepeda/php:latest', 'php', 'index.php' ],
+		[ 'docker', 'run', 'aljcepeda/php:latest', 'php', 'index.php' ],
 		'Builds docker command'
 	);
 
@@ -17,7 +17,7 @@ tape('generate', function(t) {
 	var case2 = new Command('aljcepeda', 'debian', 'latest', [], 'uname', ['-mrs']);
 	t.deepEqual(
 		case2.build('run'),
-		[ 'sudo', 'docker', 'run', 'aljcepeda/debian:latest', 'uname', '-mrs' ],
+		[ 'docker', 'run', 'aljcepeda/debian:latest', 'uname', '-mrs' ],
 		'Generates uname command for debian container'
 	);
 
@@ -34,6 +34,7 @@ tape('coder', function(t) {
 		'-w',
 		'/scripts'
 	], 'php', ['test.php']);
+	command.sudo = true;
 
 	t.deepEqual(
 		command.build('run'),
@@ -50,7 +51,7 @@ tape('coder', function(t) {
 		  'aljcepeda/php:latest',
 		  'php',
 		  'test.php' ],
-		'Simple way of generating docker commands'
+		'Docker command with sudo'
 	);
 
 	t.end();

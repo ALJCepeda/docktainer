@@ -13,17 +13,18 @@ var Docktainer = function(command, length, possibles) {
 	this.name = '';
 	this.stdout = '';
 	this.stderr = '';
-	this.timeout = '';
-	this.disconnect = 0;
+	this.err = '';
+	this.timer = '';
+	this.timeout = 0;
 
-	this.onDisconnect;
+	this.onTimeout;
 	this.process;
 };
 
 Docktainer.prototype.exec = function(options) {
 	var self = this;
 	var args = this.command.build('run');
-
+	console.log(args.join(' '));
 	var index = args.indexOf('--name');
 	if(index === -1) {
 		this.name = misc.random(this.randomLength, this.randomPossibles);
@@ -37,6 +38,7 @@ Docktainer.prototype.exec = function(options) {
 		self.process = cp.spawn(cmd, args);
 		self.stdout = '';
 		self.stderr = '';
+		self.err = '';
 
 		self.process.stdout.on('data', (data) => {
 			self.stdout += data.toString();
@@ -59,18 +61,30 @@ Docktainer.prototype.exec = function(options) {
 			});
 		});
 
-		if(val.number(self.disconnect)) {
-			self.timeout = setTimeout(function() {
-				cp.exec('sudo docker kill ' + self.name);
-
-				if(val.function(self.onDisconnect)) {
-					self.onDisconnect();
+		if(val.number(self.timeout) && self.timeout > 0) {
+			self.timer = setTimeout(function() {
+				if(self.command.sudo === true) {
+					cp.exec('sudo docker kill ' + self.name, (err, stdout, stderr) => {
+						self.err += err;
+						self.stdout += stdout;
+						self.stderr += stderr;
+					});
+				} else {
+					cp.exec('docker kill ' + self.name, (err, stdout, stderr) => {
+						self.err += err;
+						self.stdout += stdout;
+						self.stderr += stderr;
+					});
 				}
-			}, self.disconnect);
+
+				if(val.function(self.onTimeout)) {
+					self.onTimeout();
+				}
+			}, self.timeout);
 		}
 	}).then(function(result) {
-		if(self.timeout !== '') {
-			clearTimeout(self.timeout);
+		if(self.timer !== '') {
+			clearTimeout(self.timer);
 		}
 		return result;
 	});
