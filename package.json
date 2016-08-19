@@ -1,10 +1,10 @@
 {
   "name": "docktainer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Docker container management",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/index.js"
+    "test": "node tests/index.js"
   },
   "repository": {
     "type": "git",
@@ -21,8 +21,8 @@
     "url": "https://github.com/ALJCepeda/docktainer/issues"
   },
   "dependencies": {
-    "bareutil": "^1.5.1",
-    "promise": "^7.1.1",
-    "tape": "^4.5.1"
+    "bareutil": "*",
+    "promise": "*",
+    "tape": "*"
   }
 }
