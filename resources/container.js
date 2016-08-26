@@ -14,10 +14,14 @@ var Docktainer = function(command, length, possibles) {
 	this.stdout = '';
 	this.stderr = '';
 	this.err = '';
+	this.bufferLimit = 0;
+	this.bufferSize = 0;
 	this.timer = '';
 	this.timeout = 0;
 
 	this.onTimeout;
+	this.overflow = false;
+	this.onOverflow;
 	this.process;
 };
 
@@ -40,10 +44,34 @@ Docktainer.prototype.exec = function(options) {
 		self.err = '';
 
 		self.process.stdout.on('data', (data) => {
-			self.stdout += data.toString();
+			if(self.overflow === false) {
+				self.bufferSize += Buffer.byteLength(data.toString());
+
+				if(self.bufferLimit === 0 || self.bufferSize < self.bufferLimit) {
+					self.stdout += data.toString();
+				} else {
+					self.kill();
+					self.overflow = true;
+					if(val.function(self.onOverflow)) {
+						self.onOverflow();
+					}
+				}
+			}
 		});
 		self.process.stderr.on('data', (data) => {
-			self.stderr += data.toString();
+			if(self.overflow === false) {
+				self.bufferSize += Buffer.byteLength(data.toString());
+
+				if(self.bufferLimit === 0 || self.bufferSize < self.bufferLimit) {
+					self.stderr += data.toString();
+				} else {
+					self.kill();
+					self.overflow = true;
+					if(val.function(self.onOverflow)) {
+						self.onOverflow();
+					}
+				}
+			}
 		});
 
 		self.process.on('exit', (code, signal) => {
@@ -62,19 +90,7 @@ Docktainer.prototype.exec = function(options) {
 
 		if(val.number(self.timeout) && self.timeout > 0) {
 			self.timer = setTimeout(function() {
-				if(self.command.sudo === true) {
-					cp.exec('sudo docker kill ' + self.name, (err, stdout, stderr) => {
-						self.err += err;
-						self.stdout += stdout;
-						self.stderr += stderr;
-					});
-				} else {
-					cp.exec('docker kill ' + self.name, (err, stdout, stderr) => {
-						self.err += err;
-						self.stdout += stdout;
-						self.stderr += stderr;
-					});
-				}
+				self.kill();
 
 				if(val.function(self.onTimeout)) {
 					self.onTimeout();
@@ -89,4 +105,20 @@ Docktainer.prototype.exec = function(options) {
 	});
 };
 
+Docktainer.prototype.kill = function() {
+	var self = this;
+	if(self.command.sudo === true) {
+		cp.exec('sudo docker kill ' + self.name, (err, stdout, stderr) => {
+			self.err += err;
+			self.stdout += stdout;
+			self.stderr += stderr;
+		});
+	} else {
+		cp.exec('docker kill ' + self.name, (err, stdout, stderr) => {
+			self.err += err;
+			self.stdout += stdout;
+			self.stderr += stderr;
+		});
+	}
+}
 module.exports = Docktainer;

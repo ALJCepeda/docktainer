@@ -7,13 +7,6 @@ var xtape = function(name) {
 };
 
 tape('exec', function(t) {
-	var command = new Command('aljcepeda', 'php', 'latest', [
-		'--rm'
-	], 'php', [
-		'-r',
-		'while(true) { $moo = 1; echo $moo; }'
-	]);
-
 	var command = new Command('aljcepeda', 'debian', 'latest', ['--rm'], 'uname', ['-mrs']);
 	var cmd = command.build('run');
 
@@ -85,6 +78,35 @@ tape('kernel constraints', function(t) {
 			'No warning if kernel supports swap limit capabilities'
 		);
 
+		t.end();
+	});
+});
+
+tape('buffer constraints', function(t) {
+	var command = new Command('aljcepeda', 'php', 'latest', [
+		'--rm',
+		'--cpu-shares',
+		'2',
+		'--memory',
+		'70M'
+	], 'php', [
+		'-r',
+		'$str="This is a string"; while(true) { echo $str; }'
+	]);
+
+	var container = new Container(command);
+	container.timeout = 5000;
+	container.bufferLimit = 5000000;
+	container.onTimeout = function() {
+		t.fail('Container will end from memory before timeout is reached');
+	};
+	container.onOverflow = function() {
+		t.pass('onOverflow was called');
+	};
+
+	container.exec().then(function(buf) {
+		t.pass('Container ended when buffer limit was reached');
+		t.true(container.bufferSize <= (container.bufferLimit + 100000), 'Container\s buffer did not exceed limit (with some deviations)');
 		t.end();
 	});
 });
